@@ -5,6 +5,11 @@ public class NewBillDto {
     private String description;
     private String userId;
     private String fileId;
+    private Integer amount;
+
+    public Integer getAmount() {
+        return amount;
+    }
 
     public String getName() {
         return name;

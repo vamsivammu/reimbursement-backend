@@ -8,6 +8,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import io.mavq.reimbursementbackend.dto.SignInDto;
 import io.mavq.reimbursementbackend.dto.SignUpDto;
+import io.mavq.reimbursementbackend.dto.UserDto;
 import io.mavq.reimbursementbackend.model.User;
 import io.mavq.reimbursementbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +37,14 @@ public class UserService {
         return new BCryptPasswordEncoder();
     }
 
-     public Map<String,String> signin(SignInDto signInDto) throws ResponseStatusException {
-        Optional<User> userData = Optional.ofNullable(userRepository.findByEmail(signInDto.getEmail()));
-        if(userData.isPresent()){
-            if(this.comparePasswords(signInDto.getPassword(),userData.get().getPassword())){
-                Map<String,String> map = new HashMap<String,String>();
-                map.put("token",this.encodeToken(String.valueOf(userData.get().getId()),userData.get().getRole()));
-                return map;
+     public UserDto signin(SignInDto signInDto) throws ResponseStatusException {
+        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(signInDto.getEmail()));
+        if(user.isPresent()){
+            User userData = user.get();
+            if(this.comparePasswords(signInDto.getPassword(),userData.getPassword())){
+                String accessToken = this.encodeToken(String.valueOf(userData.getId()),userData.getRole());
+                UserDto userDto = new UserDto(userData,accessToken);
+                return userDto;
             }else{
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Wrong password");
             }
@@ -57,6 +59,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Email already registered");
         }else{
             String hashed = this.getHashedPassword(signUpDto.getPassword());
+            signUpDto.setPassword(hashed);
             User user = new User(signUpDto);
             this.userRepository.save(user);
             return true;
@@ -84,6 +87,32 @@ public class UserService {
          userData.put("id",payload.get("id").asString());
          userData.put("role",payload.get("role").asString());
          return userData;
+    }
+
+    public String encodeRefreshToken(String userId){
+        Algorithm alg = Algorithm.HMAC256("jwtrefreshsecret");
+        Map<String,String> map = new HashMap<>();
+        map.put("id",userId);
+        String token = JWT.create().withPayload(map).withExpiresAt(new Date(System.currentTimeMillis() + 86400000)).sign(alg);
+        return token;
+    }
+
+    public UserDto verifyRefreshToken(String token) throws Exception{
+        Algorithm alg = Algorithm.HMAC256("jwtrefreshsecret");
+        JWTVerifier verifier = JWT.require(alg).build();
+        Map<String, Claim> payload = verifier.verify(token).getClaims();
+        String userId = payload.get("id").asString();
+        System.out.println(userId);
+        Optional<User> user = this.userRepository.findById(UUID.fromString(userId));
+        if(user.isPresent()){
+            User userData = user.get();
+            String accessToken = this.encodeToken(userId,userData.getRole());
+            System.out.println(accessToken);
+            UserDto userDto = new UserDto(userData,accessToken);
+            return userDto;
+        }else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Session Expired");
+        }
     }
 
     private String getHashedPassword(String password){

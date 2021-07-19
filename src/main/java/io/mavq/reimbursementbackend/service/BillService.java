@@ -1,8 +1,13 @@
 package io.mavq.reimbursementbackend.service;
 
+import io.mavq.reimbursementbackend.dto.BillDto;
 import io.mavq.reimbursementbackend.dto.NewBillDto;
+import io.mavq.reimbursementbackend.dto.UserDto;
 import io.mavq.reimbursementbackend.model.Bill;
+import io.mavq.reimbursementbackend.model.User;
 import io.mavq.reimbursementbackend.repository.BillRepository;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -11,39 +16,53 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class BillService {
     @Autowired
     BillRepository billRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
+
+    @Autowired
+    UserService userService;
+
     public BillService(){
 
     }
 
-    public Bill insertBill(NewBillDto newBillDto,String role){
+    public BillDto insertBill(NewBillDto newBillDto,String role){
         Bill bill = new Bill(newBillDto);
+        System.out.println(role);
         if(role.equals("Manager")){
             bill.setManagerPending(false);
             bill.setManagerAccepted(true);
         }
-        return this.billRepository.save(bill);
+        bill = this.billRepository.save(bill);
+        Optional<User> user = this.userService.userRepository.findById(UUID.fromString(newBillDto.getUserId()));
+        bill.setUser(user.get());
+        return  this.billEntityToDto(bill);
     }
 
-    public List<Bill> getAllBillsByUserId(String userId){
+    public List<BillDto> getAllBillsByUserId(String userId){
         UUID id = UUID.fromString(userId);
-        return this.billRepository.findByUserId(id);
+        List<Bill> bills = this.billRepository.findByUserId(id);
+        return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
     }
 
-    public List<Bill> getAllBills(){
-        return this.billRepository.findAll();
+    public List<BillDto> getAllBills(){
+        List<Bill> bills = this.billRepository.findAll();
+        return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
     }
 
-    public List<Bill> getManagerApprovedBills(){
-        return this.billRepository.findByManagerAccepted(true);
+    public List<BillDto> getManagerApprovedBills(){
+        List<Bill> bills = this.billRepository.findByManagerAccepted(true);
+        return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
     }
 
-    public void updateManagerResponse(String billId,boolean status, String msg){
+    public BillDto updateManagerResponse(String billId,boolean status, String msg){
         UUID id = UUID.fromString(billId);
         Optional<Bill> bill = this.billRepository.findById(id);
         if(bill.isPresent()){
@@ -51,13 +70,15 @@ public class BillService {
             billData.setManagerAccepted(status);
             billData.setManagerRejectionReason(msg);
             billData.setManagerPending(false);
-            this.billRepository.save(billData);
+            Bill updatedBill = this.billRepository.save(billData);
+            BillDto billDto = this.billEntityToDto(updatedBill);
+            return billDto;
         }else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bill not found");
         }
     }
 
-    public void updateAdminResponse(String billId,boolean status,String msg){
+    public BillDto updateAdminResponse(String billId,boolean status,String msg){
         UUID id = UUID.fromString(billId);
         Optional<Bill> bill = this.billRepository.findById(id);
         if(bill.isPresent()){
@@ -65,9 +86,17 @@ public class BillService {
             billData.setAdminAccepted(status);
             billData.setAdminPending(false);
             billData.setAdminRejectionReason(msg);
-            this.billRepository.save(billData);
+            Bill updatedBill = this.billRepository.save(billData);
+            BillDto billDto = this.billEntityToDto(updatedBill);
+            return billDto;
         }else{
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bill not found");
         }
+    }
+
+    private BillDto billEntityToDto(Bill bill){
+        BillDto billDto = this.modelMapper.map(bill,BillDto.class);
+        billDto.setUserData(new UserDto(bill.getUser()));
+        return billDto;
     }
 }

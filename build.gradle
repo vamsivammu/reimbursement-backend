@@ -20,6 +20,11 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-core'
 	implementation 'org.springframework.security:spring-security-web'
 	implementation 'com.auth0:java-jwt:3.18.1'
+	implementation 'org.modelmapper:modelmapper:2.3.5'
+	implementation 'org.junit.jupiter:junit-jupiter-api:5.0.0'
+	implementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'com.google.firebase:firebase-admin:6.14.0'
+	implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 }
 
 test {

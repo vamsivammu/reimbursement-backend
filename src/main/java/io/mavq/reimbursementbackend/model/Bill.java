@@ -1,15 +1,17 @@
 package io.mavq.reimbursementbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.mavq.reimbursementbackend.dto.NewBillDto;
 import org.hibernate.annotations.*;
 
 import javax.persistence.*;
 import javax.persistence.Entity;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-public class Bill {
+public class Bill implements Serializable {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
@@ -28,7 +30,7 @@ public class Bill {
     private String managerRejectionReason;
     private String adminRejectionReason;
 
-    @ManyToOne(targetEntity = User.class,fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "userId", insertable = false,updatable = false,referencedColumnName = "id")
     private User user;
 
@@ -48,10 +50,11 @@ public class Bill {
         this.description = newBillDto.getDescription();
         this.fileId = newBillDto.getFileId();
         this.userId = UUID.fromString(newBillDto.getUserId());
+        this.amount = newBillDto.getAmount();
         this.managerAccepted = false;
         this.adminAccepted = false;
-        this.managerPending = false;
-        this.adminPending = false;
+        this.managerPending = true;
+        this.adminPending = true;
         this.managerRejectionReason = "";
         this.adminRejectionReason = "";
     }
@@ -142,4 +145,23 @@ public class Bill {
         return userId;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LocalDateTime getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreatedAt(LocalDateTime created_at) {
+        this.created_at = created_at;
+    }
+
+    public LocalDateTime getUpdated_at() {
+        return updated_at;
+    }
+
+    public void setUpdatedAt(LocalDateTime updated_at) {
+        this.updated_at = updated_at;
+    }
 }
