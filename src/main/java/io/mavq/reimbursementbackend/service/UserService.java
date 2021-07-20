@@ -25,6 +25,7 @@ public class UserService {
     @Autowired
     UserRepository userRepository;
 
+    Integer maxRole = 3;
 //    @Autowired
 //    BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
@@ -42,7 +43,7 @@ public class UserService {
         if(user.isPresent()){
             User userData = user.get();
             if(this.comparePasswords(signInDto.getPassword(),userData.getPassword())){
-                String accessToken = this.encodeToken(String.valueOf(userData.getId()),userData.getRole());
+                String accessToken = this.encodeToken(String.valueOf(userData.getId()));
                 UserDto userDto = new UserDto(userData,accessToken);
                 return userDto;
             }else{
@@ -70,11 +71,10 @@ public class UserService {
         return this.bCryptPasswordEncoder().matches(password,passwordFromDb);
     }
 
-    public String encodeToken(String userId, String role){
+    public String encodeToken(String userId){
         Algorithm alg = Algorithm.HMAC256("jwtsecret");
         Map<String,String> map = new HashMap<>();
         map.put("id",userId);
-        map.put("role",role);
         String token = JWT.create().withPayload(map).withExpiresAt(new Date(System.currentTimeMillis() + 86400000)).sign(alg);
         return token;
     }
@@ -85,7 +85,6 @@ public class UserService {
          Map<String, Claim> payload = verifier.verify(token).getClaims();
          Map<String,String> userData = new HashMap<>();
          userData.put("id",payload.get("id").asString());
-         userData.put("role",payload.get("role").asString());
          return userData;
     }
 
@@ -102,12 +101,10 @@ public class UserService {
         JWTVerifier verifier = JWT.require(alg).build();
         Map<String, Claim> payload = verifier.verify(token).getClaims();
         String userId = payload.get("id").asString();
-        System.out.println(userId);
         Optional<User> user = this.userRepository.findById(UUID.fromString(userId));
         if(user.isPresent()){
             User userData = user.get();
-            String accessToken = this.encodeToken(userId,userData.getRole());
-            System.out.println(accessToken);
+            String accessToken = this.encodeToken(userId);
             UserDto userDto = new UserDto(userData,accessToken);
             return userDto;
         }else {

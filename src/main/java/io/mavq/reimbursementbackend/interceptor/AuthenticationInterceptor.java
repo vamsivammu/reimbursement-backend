@@ -41,7 +41,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
         catch (Exception e){
-            System.out.println(e.getCause());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 

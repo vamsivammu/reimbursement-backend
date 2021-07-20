@@ -3,7 +3,7 @@ package io.mavq.reimbursementbackend.dto;
 public class SignUpDto {
     private String email;
     private String name;
-    private String role;
+    private Integer role;
     private String password;
 
     public String getEmail() {
@@ -14,7 +14,7 @@ public class SignUpDto {
         return name;
     }
 
-    public String getRole() {
+    public Integer getRole() {
         return role;
     }
 

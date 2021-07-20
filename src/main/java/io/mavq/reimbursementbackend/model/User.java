@@ -19,11 +19,11 @@ public class User {
     )
     private UUID id;
     private String name;
-    private String role;
+    private Integer role;
     private String email;
     private String password;
 
-    @OneToMany(targetEntity = Bill.class,mappedBy = "user",fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Bill.class,mappedBy = "user")
     private List<Bill> bills;
 
     public User() {
@@ -34,6 +34,14 @@ public class User {
         this.role = signUpDto.getRole();
         this.email = signUpDto.getEmail();
         this.password = signUpDto.getPassword();
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public UUID getId() {
@@ -48,11 +56,11 @@ public class User {
         this.name = name;
     }
 
-    public String getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 

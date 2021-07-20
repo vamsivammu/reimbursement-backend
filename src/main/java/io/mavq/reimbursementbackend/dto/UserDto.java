@@ -7,7 +7,7 @@ import java.util.UUID;
 public class UserDto {
     private UUID id;
     private String name;
-    private String role;
+    private Integer role;
     private String email;
     private String token;
 
@@ -41,11 +41,11 @@ public class UserDto {
         this.name = name;
     }
 
-    public String getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 

@@ -23,12 +23,11 @@ public class Bill implements Serializable {
     private String description;
     private String fileId;
     private Integer amount;
-    private boolean managerAccepted;
-    private boolean adminAccepted;
-    private boolean managerPending;
-    private boolean adminPending;
-    private String managerRejectionReason;
-    private String adminRejectionReason;
+    private Integer status;
+    private Integer initialAssignedRoleId;
+    private Integer currentAssignedRoleId;
+    private String reason;
+
 
     @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "userId", insertable = false,updatable = false,referencedColumnName = "id")
@@ -45,22 +44,24 @@ public class Bill implements Serializable {
     public Bill() {
     }
 
-    public Bill(NewBillDto newBillDto) {
+    public Bill(NewBillDto newBillDto, Integer userRoleId) {
         this.name = newBillDto.getName();
         this.description = newBillDto.getDescription();
         this.fileId = newBillDto.getFileId();
-        this.userId = UUID.fromString(newBillDto.getUserId());
         this.amount = newBillDto.getAmount();
-        this.managerAccepted = false;
-        this.adminAccepted = false;
-        this.managerPending = true;
-        this.adminPending = true;
-        this.managerRejectionReason = "";
-        this.adminRejectionReason = "";
+        this.initialAssignedRoleId = userRoleId + 1;
+        this.currentAssignedRoleId = this.initialAssignedRoleId;
+        this.userId = UUID.fromString(newBillDto.getUserId());
+        this.status = 0;
+        this.reason = "";
     }
 
     public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -87,66 +88,60 @@ public class Bill implements Serializable {
         this.fileId = fileId;
     }
 
-    public Integer getAmount(){return this.amount;}
-
-    public boolean isManagerAccepted() {
-        return managerAccepted;
+    public Integer getAmount() {
+        return amount;
     }
 
-    public void setManagerAccepted(boolean managerAccepted) {
-        this.managerAccepted = managerAccepted;
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
-    public boolean isAdminAccepted() {
-        return adminAccepted;
+    public Integer getStatus() {
+        return status;
     }
 
-    public void setAdminAccepted(boolean adminAccepted) {
-        this.adminAccepted = adminAccepted;
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
-    public boolean isManagerPending() {
-        return managerPending;
+    public Integer getInitialAssignedRoleId() {
+        return initialAssignedRoleId;
     }
 
-    public void setManagerPending(boolean managerPending) {
-        this.managerPending = managerPending;
+    public void setInitialAssignedRoleId(Integer initialAssignedRoleId) {
+        this.initialAssignedRoleId = initialAssignedRoleId;
     }
 
-    public boolean isAdminPending() {
-        return adminPending;
+    public Integer getCurrentAssignedRoleId() {
+        return currentAssignedRoleId;
     }
 
-    public void setAdminPending(boolean adminPending) {
-        this.adminPending = adminPending;
+    public void setCurrentAssignedRoleId(Integer currentAssignedRoleId) {
+        this.currentAssignedRoleId = currentAssignedRoleId;
     }
 
-    public String getManagerRejectionReason() {
-        return managerRejectionReason;
+    public String getReason() {
+        return reason;
     }
 
-    public void setManagerRejectionReason(String managerRejectionReason) {
-        this.managerRejectionReason = managerRejectionReason;
-    }
-
-    public String getAdminRejectionReason() {
-        return adminRejectionReason;
-    }
-
-    public void setAdminRejectionReason(String adminRejectionReason) {
-        this.adminRejectionReason = adminRejectionReason;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public User getUser() {
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public UUID getUserId() {
         return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public LocalDateTime getCreatedAt() {
