@@ -83,54 +83,6 @@ public class BillService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bill not found");
     }
 
-//    public List<BillDto> getAllBillsByUserId(String userId){
-//        UUID id = UUID.fromString(userId);
-//        List<Bill> bills = this.billRepository.findByUserId(id, Sort.by(Sort.Direction.DESC,"createdAt"));
-//        return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
-//    }
-//
-//    public List<BillDto> getAllBills(){
-//        List<Bill> bills = this.billRepository.findAll(Sort.by(Sort.Direction.DESC,"createdAt"));
-//        return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
-//    }
-//
-//    public List<BillDto> getManagerApprovedBills(){
-//        List<Bill> bills = this.billRepository.findByManagerAccepted(true,Sort.by(Sort.Direction.DESC,"createdAt"));
-//        return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
-//    }
-
-//    public BillDto updateManagerResponse(String billId,boolean status, String msg){
-//        UUID id = UUID.fromString(billId);
-//        Optional<Bill> bill = this.billRepository.findById(id);
-//        if(bill.isPresent()){
-//            Bill billData = bill.get();
-//            billData.setManagerAccepted(status);
-//            billData.setManagerRejectionReason(msg);
-//            billData.setManagerPending(false);
-//            Bill updatedBill = this.billRepository.save(billData);
-//            BillDto billDto = this.billEntityToDto(updatedBill);
-//            return billDto;
-//        }else{
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bill not found");
-//        }
-//    }
-//
-//    public BillDto updateAdminResponse(String billId,boolean status,String msg){
-//        UUID id = UUID.fromString(billId);
-//        Optional<Bill> bill = this.billRepository.findById(id);
-//        if(bill.isPresent()){
-//            Bill billData = bill.get();
-//            billData.setAdminAccepted(status);
-//            billData.setAdminPending(false);
-//            billData.setAdminRejectionReason(msg);
-//            Bill updatedBill = this.billRepository.save(billData);
-//            BillDto billDto = this.billEntityToDto(updatedBill);
-//            return billDto;
-//        }else{
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Bill not found");
-//        }
-//    }
-//
     private BillDto billEntityToDto(Bill bill){
         BillDto billDto = this.modelMapper.map(bill,BillDto.class);
         billDto.setUserName(bill.getUser().getName());
