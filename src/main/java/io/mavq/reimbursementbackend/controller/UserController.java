@@ -23,27 +23,25 @@ public class UserController {
     UserService userService;
 
     @PostMapping(value = "/signin")
-    public ResponseEntity<UserDto> signin(@RequestBody SignInDto signInDto, HttpServletResponse response) throws Exception{
-        try{
-            UserDto userDto = this.userService.signin(signInDto);
-            String refreshToken = this.userService.encodeRefreshToken(String.valueOf(userDto.getId()));
-            final Cookie cookie = new Cookie("jid",refreshToken);
-            cookie.setMaxAge(8640000);
-            cookie.setHttpOnly(true);
-            response.addCookie(cookie);
-            return new ResponseEntity<>(userService.signin(signInDto),HttpStatus.OK);
-        }catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Unknown error");
-        }
+    public ResponseEntity<UserDto> signin(@RequestBody SignInDto signInDto, HttpServletResponse response) throws ResponseStatusException{
+
+        UserDto userDto = this.userService.signin(signInDto);
+        String refreshToken = this.userService.encodeRefreshToken(String.valueOf(userDto.getId()));
+        final Cookie cookie = new Cookie("jid",refreshToken);
+        cookie.setMaxAge(8640000);
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+        return new ResponseEntity<>(userService.signin(signInDto),HttpStatus.OK);
+
     }
 
     @PostMapping(value = "/signup")
-    public ResponseEntity<Boolean> signup(@RequestBody SignUpDto signUpDto) throws Exception{
+    public ResponseEntity<Boolean> signup(@RequestBody SignUpDto signUpDto) throws ResponseStatusException{
         return new ResponseEntity<>(userService.signup(signUpDto),HttpStatus.OK);
     }
 
     @PostMapping(value = "/refresh")
-    public ResponseEntity<UserDto> refreshToken(@CookieValue(value = "jid") String jid, HttpServletResponse response) throws Exception{
+    public ResponseEntity<UserDto> refreshToken(@CookieValue(value = "jid") String jid, HttpServletResponse response) throws ResponseStatusException{
         System.out.println("refresh point");
 
         if(jid == null){

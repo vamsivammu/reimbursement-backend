@@ -9,6 +9,7 @@ import io.mavq.reimbursementbackend.repository.BillRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -48,17 +49,17 @@ public class BillService {
 
     public List<BillDto> getAllBillsByUserId(String userId){
         UUID id = UUID.fromString(userId);
-        List<Bill> bills = this.billRepository.findByUserId(id);
+        List<Bill> bills = this.billRepository.findByUserId(id, Sort.by(Sort.Direction.DESC,"createdAt"));
         return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
     }
 
     public List<BillDto> getAllBills(){
-        List<Bill> bills = this.billRepository.findAll();
+        List<Bill> bills = this.billRepository.findAll(Sort.by(Sort.Direction.DESC,"createdAt"));
         return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
     }
 
     public List<BillDto> getManagerApprovedBills(){
-        List<Bill> bills = this.billRepository.findByManagerAccepted(true);
+        List<Bill> bills = this.billRepository.findByManagerAccepted(true,Sort.by(Sort.Direction.DESC,"createdAt"));
         return bills.stream().map(this::billEntityToDto).collect(Collectors.toList());
     }
 

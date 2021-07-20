@@ -16,8 +16,8 @@ public class BillDto {
     private String managerRejectionReason;
     private String adminRejectionReason;
     private UUID userId;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private UserDto userData;
 
     public UUID getId() {
@@ -68,14 +68,6 @@ public class BillDto {
         return userId;
     }
 
-    public LocalDateTime getCreated_at() {
-        return created_at;
-    }
-
-    public LocalDateTime getUpdated_at() {
-        return updated_at;
-    }
-
     public void setId(UUID id) {
         this.id = id;
     }
@@ -124,19 +116,27 @@ public class BillDto {
         this.userId = userId;
     }
 
-    public void setCreated_at(LocalDateTime createdAt) {
-        this.created_at = createdAt;
-    }
-
-    public void setUpdated_at(LocalDateTime updatedAt) {
-        this.updated_at = updatedAt;
-    }
-
     public UserDto getUserData() {
         return userData;
     }
 
     public void setUserData(UserDto userData) {
         this.userData = userData;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

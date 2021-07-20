@@ -43,8 +43,7 @@ public class BillController {
     }
 
     @PostMapping()
-    public ResponseEntity<BillDto> addBill(@RequestBody NewBillDto newBillDto, @RequestAttribute Map<String,String> userData) throws Exception{
-        println("add bill");
+    public ResponseEntity<BillDto> addBill(@RequestBody NewBillDto newBillDto, @RequestAttribute Map<String,String> userData) throws ResponseStatusException{
         if(userData.get("role").equals("Admin")){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Admin is not allowed to add bills");
         }
@@ -53,8 +52,7 @@ public class BillController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<BillDto>> getBills(@RequestAttribute Map<String,String> userData) throws Exception{
-        println("get bills");
+    public ResponseEntity<List<BillDto>> getBills(@RequestAttribute Map<String,String> userData) throws ResponseStatusException{
         if(userData.get("role").equals("Admin")){
             return new ResponseEntity<>(this.billService.getManagerApprovedBills(),HttpStatus.OK);
         }
@@ -65,25 +63,20 @@ public class BillController {
     }
 
     @PatchMapping("/{id}/managerOperation")
-    public ResponseEntity<BillDto> updateManagerResponse(@PathVariable("id") String id, @RequestBody ResponseDto managerResponseDto, @RequestAttribute Map<String,String> userData) throws Exception{
-        println("hi manager");
-        println(id);
+    public ResponseEntity<BillDto> updateManagerResponse(@PathVariable("id") String id, @RequestBody ResponseDto managerResponseDto, @RequestAttribute Map<String,String> userData) throws ResponseStatusException{
         if(userData.get("role").equals("Manager")){
             return new ResponseEntity<>(this.billService.updateManagerResponse(id,managerResponseDto.isStatus(),managerResponseDto.getMsg()),HttpStatus.OK);
         }else{
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"You are not allowed to do this operation");
         }
     }
 
     @PatchMapping("/{id}/adminOperation")
-    public ResponseEntity<BillDto> updateAdminResponse(@PathVariable("id") String id, @RequestBody ResponseDto responseDto, @RequestAttribute Map<String,String> userData) throws Exception{
-        println("hi admin");
-        println(id);
+    public ResponseEntity<BillDto> updateAdminResponse(@PathVariable("id") String id, @RequestBody ResponseDto responseDto, @RequestAttribute Map<String,String> userData) throws ResponseStatusException{
         if(userData.get("role").equals("Admin")){
             return new ResponseEntity<>(this.billService.updateAdminResponse(id,responseDto.isStatus(),responseDto.getMsg()),HttpStatus.OK);
-
         }else{
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"You are not allowed to do this operation");
         }
     }
 
